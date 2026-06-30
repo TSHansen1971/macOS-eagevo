@@ -2,47 +2,99 @@
 set -u
 
 FAIL=0
+WARN=0
+
+ok() {
+  echo "OK: $1"
+}
+
+fail() {
+  echo "FAIL: $1"
+  FAIL=1
+}
+
+warn() {
+  echo "WARN: $1"
+  WARN=$((WARN + 1))
+}
 
 check_exists() {
   if [ -e "$1" ]; then
-    echo "OK: exists: $1"
+    ok "exists: $1"
   else
-    echo "FAIL: missing: $1"
-    FAIL=1
+    fail "missing: $1"
+  fi
+}
+
+check_executable() {
+  if [ -x "$1" ]; then
+    ok "executable: $1"
+  else
+    fail "missing_or_not_executable: $1"
   fi
 }
 
 check_absent_glob() {
   if compgen -G "$1" >/dev/null 2>&1; then
-    echo "FAIL: unexpected match: $1"
-    FAIL=1
+    fail "unexpected match: $1"
   else
-    echo "OK: absent: $1"
+    ok "absent: $1"
   fi
 }
 
 echo "== eagevo-status =="
 echo "platform: macOS"
 echo "role: Eagevo Control Plane for macOS"
-echo "mode: contract-only"
+echo "mode: read-only-aggregator"
+echo "automatic_collection: disabled"
 echo "enforcement: disabled"
+echo "launchd: disabled"
 echo
 
+echo "== foundation =="
 check_exists "/Library/Eagevo"
 check_exists "/Library/Application Support/Eagevo"
 check_exists "/Library/Logs/Eagevo"
 check_exists "/usr/local/lib/eagevo"
 check_exists "/usr/local/lib/eagevo/foundation-contract.json"
-check_exists "/usr/local/bin/eagevo-status"
-check_exists "/usr/local/bin/eagevo-baseline"
-
+check_executable "/usr/local/bin/eagevo-status"
+check_executable "/usr/local/bin/eagevo-baseline"
 echo
-echo "== launchd enforcement check =="
+
+echo "== audit-core =="
+check_exists "/Library/Eagevo/audit"
+check_exists "/Library/Logs/Eagevo/audit"
+check_exists "/usr/local/lib/eagevo/audit"
+check_exists "/usr/local/lib/eagevo/audit/audit-core-contract.json"
+check_exists "/Library/Logs/Eagevo/audit/audit-events.jsonl"
+check_exists "/Library/Eagevo/audit/audit-head.json"
+
+if [ -x "/usr/local/bin/eagevo-audit" ]; then
+  ok "executable: /usr/local/bin/eagevo-audit"
+  AUDIT_VERIFY_OUTPUT="$(/usr/local/bin/eagevo-audit verify 2>&1)"
+  AUDIT_VERIFY_RC=$?
+  printf '%s\n' "$AUDIT_VERIFY_OUTPUT"
+  if [ "$AUDIT_VERIFY_RC" -eq 0 ]; then
+    ok "audit_verify_green"
+  else
+    fail "audit_verify_failed"
+  fi
+else
+  fail "missing_or_not_executable: /usr/local/bin/eagevo-audit"
+fi
+echo
+
+echo "== status-core =="
+check_exists "/usr/local/lib/eagevo/status-core-contract.json"
+echo
+
+echo "== launchd safety check =="
 check_absent_glob "/Library/LaunchDaemons/*eagevo*"
 check_absent_glob "/Library/LaunchAgents/*eagevo*"
 check_absent_glob "$HOME/Library/LaunchAgents/*eagevo*"
-
 echo
+
+echo "warnings: $WARN"
 if [ "$FAIL" -eq 0 ]; then
   echo "overall: GREEN"
 else

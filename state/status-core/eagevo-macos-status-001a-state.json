@@ -1,0 +1,24 @@
+{
+  "step": "EAGEVO-MACOS-STATUS-001A",
+  "created_utc": "2026-06-30T21:12:32Z",
+  "platform": "macOS",
+  "role": "Eagevo Control Plane for macOS",
+  "phase": "status-core",
+  "mode": "read-only-aggregator",
+  "automatic_collection_enabled": false,
+  "enforcement_enabled": false,
+  "agent_autonomy_enabled": false,
+  "agent_tool_execution_enabled": false,
+  "ai_runtime_enabled": false,
+  "external_logging_enabled": false,
+  "launchd_enabled": false,
+  "aggregates": [
+    "foundation",
+    "audit-core",
+    "launchd-safety"
+  ],
+  "status_paths": {
+    "contract": "/usr/local/lib/eagevo/status-core-contract.json",
+    "command": "/usr/local/bin/eagevo-status"
+  }
+}
