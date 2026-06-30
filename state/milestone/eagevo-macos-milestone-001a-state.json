@@ -1,0 +1,19 @@
+{
+  "step": "EAGEVO-MACOS-MILESTONE-001A",
+  "created_utc": "2026-06-30T22:31:56Z",
+  "result": "GREEN",
+  "snapshot_id": "{4070d86d-ccc8-456c-9a65-d125b58a8c19}",
+  "repo_head": "47953e31969f23105e71fc0d0281785634663dfb",
+  "repo_head_short": "47953e3",
+  "platform": "macOS",
+  "role": "Eagevo Control Plane for macOS",
+  "milestone": "foundation-control-plane-baseline",
+  "audit_entries": 3,
+  "system_files_changed": false,
+  "audit_event_added": false,
+  "enforcement_enabled": false,
+  "launchd_enabled": false,
+  "ai_runtime_enabled": false,
+  "agent_execution_enabled": false,
+  "external_logging_enabled": false
+}
