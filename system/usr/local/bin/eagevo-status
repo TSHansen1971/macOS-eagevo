@@ -1,0 +1,52 @@
+#!/bin/bash
+set -u
+
+FAIL=0
+
+check_exists() {
+  if [ -e "$1" ]; then
+    echo "OK: exists: $1"
+  else
+    echo "FAIL: missing: $1"
+    FAIL=1
+  fi
+}
+
+check_absent_glob() {
+  if compgen -G "$1" >/dev/null 2>&1; then
+    echo "FAIL: unexpected match: $1"
+    FAIL=1
+  else
+    echo "OK: absent: $1"
+  fi
+}
+
+echo "== eagevo-status =="
+echo "platform: macOS"
+echo "role: Eagevo Control Plane for macOS"
+echo "mode: contract-only"
+echo "enforcement: disabled"
+echo
+
+check_exists "/Library/Eagevo"
+check_exists "/Library/Application Support/Eagevo"
+check_exists "/Library/Logs/Eagevo"
+check_exists "/usr/local/lib/eagevo"
+check_exists "/usr/local/lib/eagevo/foundation-contract.json"
+check_exists "/usr/local/bin/eagevo-status"
+check_exists "/usr/local/bin/eagevo-baseline"
+
+echo
+echo "== launchd enforcement check =="
+check_absent_glob "/Library/LaunchDaemons/*eagevo*"
+check_absent_glob "/Library/LaunchAgents/*eagevo*"
+check_absent_glob "$HOME/Library/LaunchAgents/*eagevo*"
+
+echo
+if [ "$FAIL" -eq 0 ]; then
+  echo "overall: GREEN"
+else
+  echo "overall: RED"
+fi
+
+exit "$FAIL"

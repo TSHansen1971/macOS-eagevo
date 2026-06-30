@@ -1,0 +1,22 @@
+#!/bin/bash
+set -u
+
+CONTRACT="/usr/local/lib/eagevo/foundation-contract.json"
+
+case "${1:-status}" in
+  status)
+    if [ -f "$CONTRACT" ]; then
+      cat "$CONTRACT"
+    else
+      echo "missing_contract: $CONTRACT"
+      exit 1
+    fi
+    ;;
+  verify)
+    /usr/local/bin/eagevo-status
+    ;;
+  *)
+    echo "usage: eagevo-baseline [status|verify]"
+    exit 2
+    ;;
+esac

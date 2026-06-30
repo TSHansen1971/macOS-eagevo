@@ -1,0 +1,22 @@
+{
+  "step": "EAGEVO-MACOS-FOUNDATION-001A",
+  "created_utc": "2026-06-30T19:59:47Z",
+  "platform": "macOS",
+  "role": "Eagevo Control Plane for macOS",
+  "phase": "foundation",
+  "mode": "contract-only",
+  "enforcement_enabled": false,
+  "agent_autonomy_enabled": false,
+  "agent_tool_execution_enabled": false,
+  "ai_runtime_enabled": false,
+  "external_logging_enabled": false,
+  "launchd_enabled": false,
+  "system_paths": {
+    "library_root": "/Library/Eagevo",
+    "application_support": "/Library/Application Support/Eagevo",
+    "logs": "/Library/Logs/Eagevo",
+    "libexec": "/usr/local/lib/eagevo",
+    "status_command": "/usr/local/bin/eagevo-status",
+    "baseline_command": "/usr/local/bin/eagevo-baseline"
+  }
+}
