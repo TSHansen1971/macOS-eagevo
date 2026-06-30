@@ -2,16 +2,24 @@
 
 ## Status
 
-EAGEVO-MACOS-CONTROL-PLANE-INDEX-001A is being established.
+EAGEVO-MACOS-CONTROL-PLANE-INDEX-001A is completed green.
 
 ## VM
 
 Parallels VM name: macos-eagevo-dev
 
+Active snapshot after control-plane-index baseline:
+
+{e7a805f3-6a86-448c-95c8-6b8f817ac80a}
+
 ## Repository
 
 Local path: ~/Prosjekter/macOS-eagevo
 Remote: git@github.com:TSHansen1971/macOS-eagevo.git
+
+Current control-plane-index commit before close documentation:
+
+c3404f5
 
 ## Completed steps
 
@@ -29,11 +37,28 @@ Remote: git@github.com:TSHansen1971/macOS-eagevo.git
 - EAGEVO-MACOS-STATUS-001A-CLOSE
 - EAGEVO-MACOS-BASELINE-MANIFEST-001A
 - EAGEVO-MACOS-BASELINE-MANIFEST-001A-CLOSE
-
-## Active step
-
 - EAGEVO-MACOS-CONTROL-PLANE-INDEX-001A
 
-## Security boundary
+## Last verification
 
-No automatic status collection, no automatic audit collection, no enforcement, no LaunchDaemon, no LaunchAgent, no AI runtime, no agent execution, no external logging.
+- eagevo-control-plane status: GREEN
+- eagevo-status: GREEN
+- eagevo-audit verify: GREEN
+- Control-plane index SHA256: 938c46fb6d97d0747b5f3ce7a3f3bb8fefa73a9808e12784e09ed681af2f3aba
+- Control-plane index path parity: GREEN
+- Baseline manifest path parity: GREEN
+- Audit chain entries: 3
+- No Eagevo LaunchDaemon
+- No Eagevo LaunchAgent
+- No enforcement
+- No AI runtime
+- No agent execution
+- No external logging
+
+## Note
+
+The control-plane index records repo_head_short f4ddd1c from index generation time. The final Git HEAD after index commit is c3404f5.
+
+## Next intended step
+
+EAGEVO-MACOS-MILESTONE-001A, unless another control-plane-index repair is required first.
