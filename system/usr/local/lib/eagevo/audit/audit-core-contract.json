@@ -1,0 +1,23 @@
+{
+  "step": "EAGEVO-MACOS-AUDIT-CORE-001A",
+  "created_utc": "2026-06-30T20:14:23Z",
+  "platform": "macOS",
+  "role": "Eagevo Control Plane for macOS",
+  "phase": "audit-core",
+  "mode": "manual-append-only-hash-chain",
+  "automatic_collection_enabled": false,
+  "enforcement_enabled": false,
+  "agent_autonomy_enabled": false,
+  "agent_tool_execution_enabled": false,
+  "ai_runtime_enabled": false,
+  "external_logging_enabled": false,
+  "launchd_enabled": false,
+  "audit_paths": {
+    "state_dir": "/Library/Eagevo/audit",
+    "log_dir": "/Library/Logs/Eagevo/audit",
+    "lib_dir": "/usr/local/lib/eagevo/audit",
+    "command": "/usr/local/bin/eagevo-audit",
+    "event_log": "/Library/Logs/Eagevo/audit/audit-events.jsonl",
+    "head_state": "/Library/Eagevo/audit/audit-head.json"
+  }
+}

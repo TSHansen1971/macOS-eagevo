@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+import argparse
+import datetime
+import getpass
+import hashlib
+import json
+import os
+import socket
+import sys
+from pathlib import Path
+
+STATE_DIR = Path("/Library/Eagevo/audit")
+LOG_DIR = Path("/Library/Logs/Eagevo/audit")
+LIB_DIR = Path("/usr/local/lib/eagevo/audit")
+CONTRACT = LIB_DIR / "audit-core-contract.json"
+EVENT_LOG = LOG_DIR / "audit-events.jsonl"
+HEAD_STATE = STATE_DIR / "audit-head.json"
+GENESIS = "GENESIS"
+
+
+def utc_now():
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def canonical_bytes(obj):
+    return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def hash_entry(entry_without_hash):
+    return hashlib.sha256(canonical_bytes(entry_without_hash)).hexdigest()
+
+
+def read_entries():
+    if not EVENT_LOG.exists():
+        return []
+
+    entries = []
+    with EVENT_LOG.open("r", encoding="utf-8") as f:
+        for line_no, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"invalid_json_line:{line_no}:{exc}") from exc
+    return entries
+
+
+def write_head(entry_count, last_hash):
+    HEAD_STATE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = HEAD_STATE.with_suffix(".json.tmp")
+    data = {
+        "schema_version": "eagevo.audit.head.v1",
+        "updated_utc": utc_now(),
+        "entry_count": entry_count,
+        "last_hash": last_hash,
+        "event_log": str(EVENT_LOG),
+        "mode": "manual-append-only-hash-chain"
+    }
+    tmp.write_text(json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    os.replace(tmp, HEAD_STATE)
+
+
+def verify_chain(print_output=True):
+    errors = []
+    entries = read_entries()
+    previous = GENESIS
+    last_hash = GENESIS
+
+    for expected_sequence, entry in enumerate(entries, start=1):
+        if entry.get("sequence") != expected_sequence:
+            errors.append(f"sequence_mismatch: expected={expected_sequence} actual={entry.get('sequence')}")
+
+        if entry.get("previous_hash") != previous:
+            errors.append(f"previous_hash_mismatch: sequence={expected_sequence}")
+
+        supplied_hash = entry.get("entry_hash")
+        entry_without_hash = dict(entry)
+        entry_without_hash.pop("entry_hash", None)
+        expected_hash = hash_entry(entry_without_hash)
+
+        if supplied_hash != expected_hash:
+            errors.append(f"entry_hash_mismatch: sequence={expected_sequence}")
+
+        previous = supplied_hash
+        last_hash = supplied_hash
+
+    if HEAD_STATE.exists():
+        try:
+            head = json.loads(HEAD_STATE.read_text(encoding="utf-8"))
+            if head.get("entry_count") != len(entries):
+                errors.append(f"head_count_mismatch: expected={len(entries)} actual={head.get('entry_count')}")
+            if head.get("last_hash") != last_hash:
+                errors.append("head_hash_mismatch")
+        except Exception as exc:
+            errors.append(f"head_state_invalid:{exc}")
+    else:
+        errors.append(f"missing_head_state:{HEAD_STATE}")
+
+    if print_output:
+        if errors:
+            print("audit_verify: RED")
+            for err in errors:
+                print(f"FAIL: {err}")
+        else:
+            print("audit_verify: GREEN")
+        print(f"entries: {len(entries)}")
+        print(f"last_hash: {last_hash}")
+
+    return 1 if errors else 0
+
+
+def append_event(args):
+    payload = {}
+    if args.payload:
+        try:
+            payload = json.loads(args.payload)
+        except json.JSONDecodeError as exc:
+            print(f"ERROR: invalid_payload_json: {exc}", file=sys.stderr)
+            return 2
+
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+    entries = read_entries()
+    previous_hash = entries[-1]["entry_hash"] if entries else GENESIS
+    sequence = len(entries) + 1
+
+    entry = {
+        "schema_version": "eagevo.audit.event.v1",
+        "sequence": sequence,
+        "event_utc": utc_now(),
+        "event_type": args.type,
+        "message": args.message,
+        "source": {
+            "tool": "eagevo-audit",
+            "host": socket.gethostname(),
+            "user": getpass.getuser()
+        },
+        "payload": payload,
+        "previous_hash": previous_hash
+    }
+    entry["entry_hash"] = hash_entry(entry)
+
+    with EVENT_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
+
+    write_head(sequence, entry["entry_hash"])
+
+    print(f"appended_sequence: {sequence}")
+    print(f"entry_hash: {entry['entry_hash']}")
+    return 0
+
+
+def status(_args):
+    fail = False
+
+    print("== eagevo-audit ==")
+    print("platform: macOS")
+    print("role: Eagevo Control Plane for macOS")
+    print("mode: manual-append-only-hash-chain")
+    print("automatic_collection: disabled")
+    print("enforcement: disabled")
+    print("launchd: disabled")
+    print()
+
+    for path in [STATE_DIR, LOG_DIR, LIB_DIR, CONTRACT, EVENT_LOG, HEAD_STATE]:
+        if path.exists():
+            print(f"OK: exists: {path}")
+        else:
+            print(f"FAIL: missing: {path}")
+            fail = True
+
+    print()
+    verify_rc = verify_chain(print_output=True)
+    if verify_rc != 0:
+        fail = True
+
+    print()
+    print("overall: GREEN" if not fail else "overall: RED")
+    return 1 if fail else 0
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="eagevo-audit")
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("status")
+    sub.add_parser("verify")
+
+    append_parser = sub.add_parser("append")
+    append_parser.add_argument("--type", required=True)
+    append_parser.add_argument("--message", required=True)
+    append_parser.add_argument("--payload", default="{}")
+
+    args = parser.parse_args()
+
+    if args.command in (None, "status"):
+        return status(args)
+    if args.command == "verify":
+        return verify_chain(print_output=True)
+    if args.command == "append":
+        return append_event(args)
+
+    parser.print_help()
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
