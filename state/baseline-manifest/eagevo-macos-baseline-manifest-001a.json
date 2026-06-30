@@ -1,0 +1,77 @@
+{
+  "audit": {
+    "head": {
+      "entry_count": 2,
+      "event_log": "/Library/Logs/Eagevo/audit/audit-events.jsonl",
+      "last_hash": "44485971e4934c690d98076d310f335d23550ae9d737f367963607d9324fd2b1",
+      "mode": "manual-append-only-hash-chain",
+      "schema_version": "eagevo.audit.head.v1",
+      "updated_utc": "2026-06-30T21:43:33Z"
+    },
+    "head_path": "/Library/Eagevo/audit/audit-head.json",
+    "head_sha256": "5ea1cfd9500c67d55fef5a5b21b12afdf7f43262aeae94acb559431e81dc8ec8"
+  },
+  "commands": {
+    "eagevo_audit": {
+      "path": "/usr/local/bin/eagevo-audit",
+      "sha256": "007ddd0def12c8022619afb5215ce5249aabd7994ce1b6c0897496fb67f3c213"
+    },
+    "eagevo_baseline": {
+      "path": "/usr/local/bin/eagevo-baseline",
+      "sha256": "b7d53fc8d5c7b6ab3234be08c5e959c99f9e0607318aafff7deeb3b00bd726fd"
+    },
+    "eagevo_status": {
+      "path": "/usr/local/bin/eagevo-status",
+      "sha256": "32e9d9d6dcaf4b3ebbe3083d9cf77cc325521bcce58b47b9dd03e8d4052daea4"
+    }
+  },
+  "contracts": {
+    "audit_core": {
+      "path": "/usr/local/lib/eagevo/audit/audit-core-contract.json",
+      "sha256": "c7760fc64a40697fa024ffea3d902019a21e1e21df7812d709851c6ed7c72fb9"
+    },
+    "foundation": {
+      "path": "/usr/local/lib/eagevo/foundation-contract.json",
+      "sha256": "dee11a32faa7509135125c91c309a01d532c75a9bcecddf963f213a093cfdac0"
+    },
+    "status_core": {
+      "path": "/usr/local/lib/eagevo/status-core-contract.json",
+      "sha256": "6c225250a25206b9904edead6be46e6b5740d17eb426f0cd9d8d212873610051"
+    }
+  },
+  "created_utc": "2026-06-30T21:43:30Z",
+  "platform": {
+    "build_version": "25F84",
+    "host": "macos-eagevo-dev.shared",
+    "kernel": "Darwin macos-eagevo-dev.shared 25.5.0 Darwin Kernel Version 25.5.0: Tue Jun  9 22:26:00 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_VMAPPLE arm64",
+    "name": "macOS",
+    "product_version": "26.5.2",
+    "user": "tostha-dev"
+  },
+  "product": {
+    "name": "macOS-eagevo",
+    "principle": "macOS utfører. Eagevo klassifiserer, vurderer, dokumenterer, auditerer og styrer.",
+    "role": "Eagevo Control Plane for macOS"
+  },
+  "repository": {
+    "head": "ef714d41978a6dc5f5a680bbb360ae1bc63a4b46",
+    "head_short": "ef714d4",
+    "path": "/Users/tostha-dev/Prosjekter/macOS-eagevo",
+    "remote": "git@github.com:TSHansen1971/macOS-eagevo.git"
+  },
+  "schema_version": "eagevo.macos.baseline_manifest.v1",
+  "security_boundary": {
+    "agent_autonomy_enabled": false,
+    "agent_tool_execution_enabled": false,
+    "ai_runtime_enabled": false,
+    "automatic_audit_collection_enabled": false,
+    "automatic_status_collection_enabled": false,
+    "enforcement_enabled": false,
+    "external_logging_enabled": false,
+    "launch_agent_enabled": false,
+    "launch_daemon_enabled": false,
+    "launchd_enabled": false,
+    "mdm_enabled": false
+  },
+  "step": "EAGEVO-MACOS-BASELINE-MANIFEST-001A"
+}

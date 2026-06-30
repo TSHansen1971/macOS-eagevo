@@ -2,24 +2,16 @@
 
 ## Status
 
-EAGEVO-MACOS-STATUS-001A is completed green.
+EAGEVO-MACOS-BASELINE-MANIFEST-001A is being established.
 
 ## VM
 
 Parallels VM name: macos-eagevo-dev
 
-Active snapshot after status baseline:
-
-{c8432bc4-959c-48a5-b5ad-134fc6db6278}
-
 ## Repository
 
 Local path: ~/Prosjekter/macOS-eagevo
 Remote: git@github.com:TSHansen1971/macOS-eagevo.git
-
-Current status-core commit before close documentation:
-
-bffb775
 
 ## Completed steps
 
@@ -34,21 +26,12 @@ bffb775
 - EAGEVO-MACOS-AUDIT-CORE-001A
 - EAGEVO-MACOS-AUDIT-CORE-001A-CLOSE
 - EAGEVO-MACOS-STATUS-001A
+- EAGEVO-MACOS-STATUS-001A-CLOSE
 
-## Last verification
+## Active step
 
-- eagevo-status: GREEN
-- eagevo-audit verify: GREEN
-- eagevo-baseline verify: GREEN
-- Warnings: 0
-- Audit chain entries: 1
-- No Eagevo LaunchDaemon
-- No Eagevo LaunchAgent
-- No enforcement
-- No AI runtime
-- No agent execution
-- No external logging
+- EAGEVO-MACOS-BASELINE-MANIFEST-001A
 
-## Next intended step
+## Security boundary
 
-EAGEVO-MACOS-BASELINE-MANIFEST-001A, unless another status-core repair is required first.
+No automatic status collection, no automatic audit collection, no enforcement, no LaunchDaemon, no LaunchAgent, no AI runtime, no agent execution, no external logging.
