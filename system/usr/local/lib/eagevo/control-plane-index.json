@@ -1,0 +1,123 @@
+{
+  "commands": {
+    "eagevo-audit": {
+      "exists": true,
+      "path": "/usr/local/bin/eagevo-audit",
+      "sha256": "007ddd0def12c8022619afb5215ce5249aabd7994ce1b6c0897496fb67f3c213"
+    },
+    "eagevo-baseline": {
+      "exists": true,
+      "path": "/usr/local/bin/eagevo-baseline",
+      "sha256": "b7d53fc8d5c7b6ab3234be08c5e959c99f9e0607318aafff7deeb3b00bd726fd"
+    },
+    "eagevo-control-plane": {
+      "path": "/usr/local/bin/eagevo-control-plane"
+    },
+    "eagevo-status": {
+      "exists": true,
+      "path": "/usr/local/bin/eagevo-status",
+      "sha256": "32e9d9d6dcaf4b3ebbe3083d9cf77cc325521bcce58b47b9dd03e8d4052daea4"
+    }
+  },
+  "components": [
+    {
+      "contract": {
+        "exists": true,
+        "path": "/usr/local/lib/eagevo/foundation-contract.json",
+        "sha256": "dee11a32faa7509135125c91c309a01d532c75a9bcecddf963f213a093cfdac0"
+      },
+      "id": "foundation",
+      "mode": "contract-only",
+      "status": "green"
+    },
+    {
+      "audit_head": {
+        "entry_count": 3,
+        "event_log": "/Library/Logs/Eagevo/audit/audit-events.jsonl",
+        "last_hash": "9e77172451d55337c3f510161e09849b30cfa45a599d649242bc0d1086a343e6",
+        "mode": "manual-append-only-hash-chain",
+        "schema_version": "eagevo.audit.head.v1",
+        "updated_utc": "2026-06-30T22:05:58Z"
+      },
+      "contract": {
+        "exists": true,
+        "path": "/usr/local/lib/eagevo/audit/audit-core-contract.json",
+        "sha256": "c7760fc64a40697fa024ffea3d902019a21e1e21df7812d709851c6ed7c72fb9"
+      },
+      "id": "audit-core",
+      "mode": "manual-append-only-hash-chain",
+      "status": "green"
+    },
+    {
+      "contract": {
+        "exists": true,
+        "path": "/usr/local/lib/eagevo/status-core-contract.json",
+        "sha256": "6c225250a25206b9904edead6be46e6b5740d17eb426f0cd9d8d212873610051"
+      },
+      "id": "status-core",
+      "mode": "read-only-aggregator",
+      "status": "green"
+    },
+    {
+      "id": "baseline-manifest",
+      "manifest_library": {
+        "exists": true,
+        "path": "/Library/Eagevo/baseline-manifest.json",
+        "sha256": "a6721a9b0f2eee4ee1da4d41ae3584bc4a2e4de2c87bc737c2f0ca6e1d46d03e"
+      },
+      "manifest_usr_local": {
+        "exists": true,
+        "path": "/usr/local/lib/eagevo/baseline-manifest.json",
+        "sha256": "a6721a9b0f2eee4ee1da4d41ae3584bc4a2e4de2c87bc737c2f0ca6e1d46d03e"
+      },
+      "mode": "read-only-baseline-record",
+      "status": "green"
+    },
+    {
+      "id": "control-plane-index",
+      "index_library": {
+        "path": "/Library/Eagevo/control-plane-index.json"
+      },
+      "index_usr_local": {
+        "path": "/usr/local/lib/eagevo/control-plane-index.json"
+      },
+      "mode": "read-only-index",
+      "status": "green"
+    }
+  ],
+  "created_utc": "2026-06-30T22:05:58Z",
+  "platform": {
+    "build_version": "25F84",
+    "host": "macos-eagevo-dev.shared",
+    "machine": "arm64",
+    "name": "macOS",
+    "product_version": "26.5.2",
+    "user": "tostha-dev"
+  },
+  "product": {
+    "name": "macOS-eagevo",
+    "principle": "macOS utfører. Eagevo klassifiserer, vurderer, dokumenterer, auditerer og styrer.",
+    "role": "Eagevo Control Plane for macOS"
+  },
+  "repository": {
+    "head": "f4ddd1ca8af34b47e7ac58c40080b5238e411d5d",
+    "head_short": "f4ddd1c",
+    "path": "/Users/tostha-dev/Prosjekter/macOS-eagevo",
+    "remote": "git@github.com:TSHansen1971/macOS-eagevo.git"
+  },
+  "schema_version": "eagevo.macos.control_plane_index.v1",
+  "security_boundary": {
+    "agent_autonomy_enabled": false,
+    "agent_tool_execution_enabled": false,
+    "ai_runtime_enabled": false,
+    "automatic_audit_collection_enabled": false,
+    "automatic_status_collection_enabled": false,
+    "enforcement_enabled": false,
+    "external_logging_enabled": false,
+    "launch_agent_enabled": false,
+    "launch_daemon_enabled": false,
+    "launchd_enabled": false,
+    "mdm_enabled": false
+  },
+  "step": "EAGEVO-MACOS-CONTROL-PLANE-INDEX-001A"
+}
