@@ -2,16 +2,24 @@
 
 ## Status
 
-EAGEVO-MACOS-FOUNDATION-001A is being established as the first contract-only Eagevo foundation on macOS.
+EAGEVO-MACOS-FOUNDATION-001A is completed green.
 
 ## VM
 
 Parallels VM name: macos-eagevo-dev
 
+Active snapshot after foundation:
+
+{f2ee3bd9-617f-4355-8963-fd26474809c4}
+
 ## Repository
 
 Local path: ~/Prosjekter/macOS-eagevo
 Remote: git@github.com:TSHansen1971/macOS-eagevo.git
+
+Current foundation commit before close documentation:
+
+fe86ea1
 
 ## Completed steps
 
@@ -21,11 +29,19 @@ Remote: git@github.com:TSHansen1971/macOS-eagevo.git
 - EAGEVO-MACOS-REPO-CLONE-001A
 - EAGEVO-MACOS-REPO-INIT-001A
 - EAGEVO-MACOS-REPO-PUSH-001A
-
-## Active step
-
 - EAGEVO-MACOS-FOUNDATION-001A
 
-## Security boundary
+## Last verification
 
-No enforcement, no LaunchDaemon, no LaunchAgent, no AI runtime, no agent execution, no external logging.
+- eagevo-status: GREEN
+- eagevo-baseline verify: GREEN
+- No Eagevo LaunchDaemon
+- No Eagevo LaunchAgent
+- No enforcement
+- No AI runtime
+- No agent execution
+- No external logging
+
+## Next intended step
+
+EAGEVO-MACOS-AUDIT-CORE-001A, contract-only / append-only design, unless another foundation repair is required first.
