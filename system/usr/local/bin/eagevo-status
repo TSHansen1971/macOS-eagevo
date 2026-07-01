@@ -1,104 +1,200 @@
-#!/bin/bash
-set -u
+#!/usr/bin/env python3
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
 
-FAIL=0
-WARN=0
+FOUNDATION_PATHS = [
+    "/Library/Eagevo",
+    "/Library/Application Support/Eagevo",
+    "/Library/Logs/Eagevo",
+    "/usr/local/lib/eagevo",
+    "/usr/local/lib/eagevo/foundation-contract.json",
+]
 
-ok() {
-  echo "OK: $1"
-}
+FOUNDATION_EXECUTABLES = [
+    "/usr/local/bin/eagevo-status",
+    "/usr/local/bin/eagevo-baseline",
+]
 
-fail() {
-  echo "FAIL: $1"
-  FAIL=1
-}
+AUDIT_PATHS = [
+    "/Library/Eagevo/audit",
+    "/Library/Logs/Eagevo/audit",
+    "/usr/local/lib/eagevo/audit",
+    "/usr/local/lib/eagevo/audit/audit-core-contract.json",
+    "/Library/Logs/Eagevo/audit/audit-events.jsonl",
+    "/Library/Eagevo/audit/audit-head.json",
+]
 
-warn() {
-  echo "WARN: $1"
-  WARN=$((WARN + 1))
-}
+CONTROL_PLANE_PATHS = [
+    "/usr/local/lib/eagevo/control-plane-index.json",
+    "/Library/Eagevo/control-plane-index.json",
+]
 
-check_exists() {
-  if [ -e "$1" ]; then
-    ok "exists: $1"
-  else
-    fail "missing: $1"
-  fi
-}
+CONTROL_PLANE_EXECUTABLES = [
+    "/usr/local/bin/eagevo-control-plane",
+]
 
-check_executable() {
-  if [ -x "$1" ]; then
-    ok "executable: $1"
-  else
-    fail "missing_or_not_executable: $1"
-  fi
-}
+ADAPTER_PATHS = [
+    "/usr/local/lib/eagevo/macos-adapter/adapter-contract.json",
+    "/usr/local/lib/eagevo/macos-adapter-discovery.json",
+    "/Library/Eagevo/evidence/macos-discovery.json",
+]
 
-check_absent_glob() {
-  if compgen -G "$1" >/dev/null 2>&1; then
-    fail "unexpected match: $1"
-  else
-    ok "absent: $1"
-  fi
-}
+ADAPTER_EXECUTABLES = [
+    "/usr/local/bin/eagevo-macos-adapter",
+]
 
-echo "== eagevo-status =="
-echo "platform: macOS"
-echo "role: Eagevo Control Plane for macOS"
-echo "mode: read-only-aggregator"
-echo "automatic_collection: disabled"
-echo "enforcement: disabled"
-echo "launchd: disabled"
-echo
+FORBIDDEN_GLOBS = [
+    "/Library/LaunchDaemons/*eagevo*",
+    "/Library/LaunchAgents/*eagevo*",
+    str(Path.home() / "Library/LaunchAgents/*eagevo*"),
+]
 
-echo "== foundation =="
-check_exists "/Library/Eagevo"
-check_exists "/Library/Application Support/Eagevo"
-check_exists "/Library/Logs/Eagevo"
-check_exists "/usr/local/lib/eagevo"
-check_exists "/usr/local/lib/eagevo/foundation-contract.json"
-check_executable "/usr/local/bin/eagevo-status"
-check_executable "/usr/local/bin/eagevo-baseline"
-echo
+def sha256_file(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
-echo "== audit-core =="
-check_exists "/Library/Eagevo/audit"
-check_exists "/Library/Logs/Eagevo/audit"
-check_exists "/usr/local/lib/eagevo/audit"
-check_exists "/usr/local/lib/eagevo/audit/audit-core-contract.json"
-check_exists "/Library/Logs/Eagevo/audit/audit-events.jsonl"
-check_exists "/Library/Eagevo/audit/audit-head.json"
+def run(argv):
+    return subprocess.run(argv, text=True, capture_output=True, check=False)
 
-if [ -x "/usr/local/bin/eagevo-audit" ]; then
-  ok "executable: /usr/local/bin/eagevo-audit"
-  AUDIT_VERIFY_OUTPUT="$(/usr/local/bin/eagevo-audit verify 2>&1)"
-  AUDIT_VERIFY_RC=$?
-  printf '%s\n' "$AUDIT_VERIFY_OUTPUT"
-  if [ "$AUDIT_VERIFY_RC" -eq 0 ]; then
-    ok "audit_verify_green"
-  else
-    fail "audit_verify_failed"
-  fi
-else
-  fail "missing_or_not_executable: /usr/local/bin/eagevo-audit"
-fi
-echo
+def check_exists(path):
+    p = Path(path)
+    if p.exists():
+        print(f"OK: exists: {path}")
+        return False
+    print(f"FAIL: missing: {path}")
+    return True
 
-echo "== status-core =="
-check_exists "/usr/local/lib/eagevo/status-core-contract.json"
-echo
+def check_executable(path):
+    p = Path(path)
+    if p.exists() and p.is_file() and p.stat().st_mode & 0o111:
+        print(f"OK: executable: {path}")
+        return False
+    print(f"FAIL: not_executable: {path}")
+    return True
 
-echo "== launchd safety check =="
-check_absent_glob "/Library/LaunchDaemons/*eagevo*"
-check_absent_glob "/Library/LaunchAgents/*eagevo*"
-check_absent_glob "$HOME/Library/LaunchAgents/*eagevo*"
-echo
+def glob_matches(pattern):
+    if pattern.startswith("/"):
+        return [str(p) for p in Path("/").glob(pattern.lstrip("/"))]
+    return [str(p) for p in Path.home().glob("Library/LaunchAgents/*eagevo*")]
 
-echo "warnings: $WARN"
-if [ "$FAIL" -eq 0 ]; then
-  echo "overall: GREEN"
-else
-  echo "overall: RED"
-fi
+def load_json(path):
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:
+        return None
 
-exit "$FAIL"
+def main():
+    fail = False
+    warnings = 0
+
+    print("== eagevo-status ==")
+    print("platform: macOS")
+    print("role: Eagevo Control Plane for macOS")
+    print("mode: read-only-aggregator")
+    print("automatic_collection: disabled")
+    print("enforcement: disabled")
+    print("launchd: disabled")
+    print()
+
+    print("== foundation ==")
+    for path in FOUNDATION_PATHS:
+        fail = check_exists(path) or fail
+    for path in FOUNDATION_EXECUTABLES:
+        fail = check_executable(path) or fail
+    print()
+
+    print("== audit-core ==")
+    for path in AUDIT_PATHS:
+        fail = check_exists(path) or fail
+    fail = check_executable("/usr/local/bin/eagevo-audit") or fail
+    audit = run(["/usr/local/bin/eagevo-audit", "verify"])
+    print(audit.stdout.strip())
+    if audit.returncode == 0 and "audit_verify: GREEN" in audit.stdout:
+        print("OK: audit_verify_green")
+    else:
+        print("FAIL: audit_verify_not_green")
+        if audit.stderr.strip():
+            print(audit.stderr.strip())
+        fail = True
+    print()
+
+    print("== status-core ==")
+    fail = check_exists("/usr/local/lib/eagevo/status-core-contract.json") or fail
+    print()
+
+    print("== control-plane-index ==")
+    for path in CONTROL_PLANE_PATHS:
+        fail = check_exists(path) or fail
+    for path in CONTROL_PLANE_EXECUTABLES:
+        fail = check_executable(path) or fail
+
+    if Path("/usr/local/lib/eagevo/control-plane-index.json").exists() and Path("/Library/Eagevo/control-plane-index.json").exists():
+        usr_sha = sha256_file("/usr/local/lib/eagevo/control-plane-index.json")
+        lib_sha = sha256_file("/Library/Eagevo/control-plane-index.json")
+        if usr_sha == lib_sha:
+            print(f"OK: control_plane_index_sha256: {usr_sha}")
+        else:
+            print(f"FAIL: control_plane_index_sha_mismatch: {usr_sha} != {lib_sha}")
+            fail = True
+
+        index = load_json("/usr/local/lib/eagevo/control-plane-index.json") or {}
+        components = index.get("components", [])
+        print(f"components: {len(components)}")
+        print(f"repo_head_short: {index.get('repo_head_short')}")
+        print(f"updated_by_step: {index.get('updated_by_step')}")
+        if len(components) >= 6:
+            print("OK: control_plane_components_at_least_6")
+        else:
+            print(f"FAIL: control_plane_components_too_low: {len(components)}")
+            fail = True
+    print()
+
+    print("== macos-adapter ==")
+    for path in ADAPTER_PATHS:
+        fail = check_exists(path) or fail
+    for path in ADAPTER_EXECUTABLES:
+        fail = check_executable(path) or fail
+
+    if Path("/usr/local/lib/eagevo/macos-adapter-discovery.json").exists() and Path("/Library/Eagevo/evidence/macos-discovery.json").exists():
+        usr_sha = sha256_file("/usr/local/lib/eagevo/macos-adapter-discovery.json")
+        lib_sha = sha256_file("/Library/Eagevo/evidence/macos-discovery.json")
+        if usr_sha == lib_sha:
+            print(f"OK: macos_adapter_evidence_sha256: {usr_sha}")
+        else:
+            print(f"FAIL: macos_adapter_evidence_sha_mismatch: {usr_sha} != {lib_sha}")
+            fail = True
+
+    adapter = run(["/usr/local/bin/eagevo-macos-adapter", "verify"])
+    if adapter.returncode == 0 and "overall: GREEN" in adapter.stdout:
+        print("OK: macos_adapter_verify_green")
+    else:
+        print("FAIL: macos_adapter_verify_not_green")
+        print(adapter.stdout.strip())
+        if adapter.stderr.strip():
+            print(adapter.stderr.strip())
+        fail = True
+    print()
+
+    print("== launchd safety check ==")
+    for pattern in FORBIDDEN_GLOBS:
+        matches = glob_matches(pattern)
+        if matches:
+            print(f"FAIL: unexpected_launchd_match: {pattern}: {matches}")
+            fail = True
+        else:
+            print(f"OK: absent: {pattern}")
+
+    print()
+    print(f"warnings: {warnings}")
+    print("overall: GREEN" if not fail else "overall: RED")
+
+    return 1 if fail else 0
+
+if __name__ == "__main__":
+    sys.exit(main())

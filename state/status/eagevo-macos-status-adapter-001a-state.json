@@ -1,0 +1,16 @@
+{
+  "step": "EAGEVO-MACOS-STATUS-ADAPTER-001A",
+  "created_utc": "2026-07-01T15:30:17Z",
+  "start_head": "bbb5c03",
+  "phase": "status-adapter-integration",
+  "mode": "read-only-aggregator",
+  "status_sections_added": [
+    "control-plane-index",
+    "macos-adapter"
+  ],
+  "automatic_collection_enabled": false,
+  "enforcement_enabled": false,
+  "launchd_enabled": false,
+  "ai_runtime_enabled": false,
+  "external_logging_enabled": false
+}

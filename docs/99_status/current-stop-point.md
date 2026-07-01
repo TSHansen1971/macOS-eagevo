@@ -2,24 +2,24 @@
 
 ## Status
 
-EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A is completed green.
+EAGEVO-MACOS-STATUS-ADAPTER-001A is being established.
 
 ## VM
 
 Parallels VM name: macos-eagevo-dev
 
-Active snapshot after control-plane adapter index green:
+Previous closed snapshot:
 
-{130bd23b-82b0-4ae3-9da3-71489ea0309c}
+{e5747989-db7d-47c5-82c1-be66a799a00f}
 
 ## Repository
 
 Local path: ~/Prosjekter/macOS-eagevo
 Remote: git@github.com:TSHansen1971/macOS-eagevo.git
 
-Current commit before close documentation:
+Start head:
 
-60e30c5
+bbb5c03
 
 ## Completed steps
 
@@ -27,44 +27,12 @@ Current commit before close documentation:
 - EAGEVO-MACOS-ADAPTER-DISCOVERY-001A
 - EAGEVO-MACOS-ADAPTER-DISCOVERY-001A-CLOSE
 - EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A
+- EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A-CLOSE
 
-## Last verification
+## Active step
 
-- eagevo-control-plane status: GREEN
-- eagevo-status: GREEN
-- eagevo-macos-adapter verify: GREEN
-- eagevo-audit verify: GREEN
-- Control-plane components: 6
-- Control-plane index parity: GREEN
-- Adapter evidence parity: GREEN
-- Control-plane index SHA256: 0436263aad7b518c8903dadbc6f79edc9995e6fa9adca9e0541cd0c2707bc224
-- Adapter evidence SHA256: 4da45d4d0de813b6b62809b0ea473722fa5c5b6a96367704ec5f70744c7174b2
-- Audit chain entries: 5
-- No Eagevo LaunchDaemon
-- No Eagevo LaunchAgent
-- No enforcement
-- No AI runtime
-- No agent execution
-- No external logging
+- EAGEVO-MACOS-STATUS-ADAPTER-001A
 
-## Control-plane component summary
+## Security boundary
 
-```text
-components: 6
-repo_head_short: d7ca5e2
-updated_by_step: EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A
-- foundation
-- audit-core
-- status-core
-- baseline-manifest
-- control-plane-index
-- macos-adapter-discovery
-```
-
-## Note
-
-repo_head_short in the installed control-plane index records the generation-time repository head, not the post-commit hash. This is expected for this baseline and is not a verification deviation.
-
-## Next intended step
-
-EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A-CLOSE final push and snapshot, unless repair is required first.
+Read-only status aggregator update. No automatic collection, no enforcement, no LaunchDaemon, no LaunchAgent, no AI runtime, no agent execution, no external logging.
