@@ -1,0 +1,119 @@
+{
+  "schema_version": "0.1",
+  "package_id": "approval-package-example-first-001",
+  "package_type": "first_approval_package",
+  "package_status": "owner_decision_required",
+  "system_scope": {
+    "system_id": "macos-eagevo-example-system",
+    "system_name": "macOS-eagevo Example System",
+    "platform": "macOS",
+    "scope_statement": "Example first approval package for a local-first macOS control-plane environment.",
+    "included_components": [
+      "macOS host",
+      "Eagevo control-plane documentation"
+    ],
+    "excluded_components": [
+      "MDM",
+      "AI runtime",
+      "network enforcement"
+    ]
+  },
+  "system_owner": {
+    "id": "system-owner-example",
+    "name": "Example System Owner",
+    "organization": "Example Organization",
+    "role": "Systemeier"
+  },
+  "information_values": [
+    {
+      "id": "info-value-001",
+      "name": "Example information object",
+      "value_type": "information_object",
+      "protection_need": "moderate",
+      "description": "Example value used only to validate package structure."
+    }
+  ],
+  "classification_profile": {
+    "classification_model": "example-classification-model",
+    "highest_classification": "example-moderate",
+    "classification_basis": "Example basis; not an operational classification.",
+    "classification_does_not_grant_access": true
+  },
+  "privacy_profile": {
+    "personal_data_present": false,
+    "privacy_axis_assessed": true,
+    "privacy_notes": "Example package contains no real personal data."
+  },
+  "actor_model": [
+    {
+      "actor_id": "actor-system-owner",
+      "actor_type": "person",
+      "role": "system_owner",
+      "description": "Example decision owner."
+    }
+  ],
+  "clearance_model": {
+    "clearance_required": false,
+    "clearance_grants_access": false,
+    "notes": "Clearance is modeled separately from authorization."
+  },
+  "authorization_model": {
+    "default_authorization": "deny",
+    "authorization_is_access_decision": true,
+    "authorization_rules": []
+  },
+  "security_requirements": [
+    {
+      "id": "req-001",
+      "statement": "Example security requirement.",
+      "source": "example"
+    }
+  ],
+  "implemented_measures": [
+    {
+      "id": "measure-001",
+      "requirement_id": "req-001",
+      "statement": "Example implemented measure."
+    }
+  ],
+  "control_test_results": [
+    {
+      "id": "test-001",
+      "measure_id": "measure-001",
+      "result": "not_tested_in_example"
+    }
+  ],
+  "risk_assessment": {
+    "method": "example-risk-method",
+    "summary": "Example only. No real approval claim is made."
+  },
+  "residual_risk": {
+    "level": "unknown",
+    "summary": "Residual risk is not accepted in this example.",
+    "accepted_by_system_owner": false
+  },
+  "evidence_references": [
+    {
+      "id": "evidence-schema-main",
+      "kind": "schema",
+      "uri": "schemas/approval/eagevo-approval-evidence-package.schema.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "description": "Placeholder hash for structural example only."
+    }
+  ],
+  "change_assessment": null,
+  "approval_decision": null,
+  "validity_period": {
+    "from": null,
+    "to": null,
+    "review_triggers": [
+      "significant_change",
+      "scope_change",
+      "risk_change"
+    ]
+  },
+  "limitations": [
+    "Example package. Not an approval."
+  ],
+  "audit_trail": []
+}

@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eagevo.local/schemas/approval/eagevo-change-assessment.schema.json",
+  "title": "Eagevo Change Assessment",
+  "description": "Machine-readable change assessment for approval package workflows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "change_id",
+    "change_title",
+    "change_classification",
+    "security_relevance",
+    "assessment_basis",
+    "recommended_package_type",
+    "owner_decision_required"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "change_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_description": {
+      "type": "string"
+    },
+    "change_classification": {
+      "type": "string",
+      "enum": [
+        "no_security_relevance",
+        "minor_change",
+        "significant_change",
+        "requires_reapproval",
+        "requires_new_approval",
+        "temporary_use_candidate",
+        "not_allowed_without_security_fix"
+      ]
+    },
+    "security_relevance": {
+      "type": "string",
+      "enum": [
+        "none",
+        "low",
+        "moderate",
+        "high",
+        "critical",
+        "unknown"
+      ]
+    },
+    "assessment_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system_scope_changed",
+        "information_values_changed",
+        "classification_profile_changed",
+        "privacy_profile_changed",
+        "actor_model_changed",
+        "authorization_model_changed",
+        "security_requirements_changed",
+        "implemented_measures_changed",
+        "control_test_results_changed",
+        "residual_risk_changed"
+      ],
+      "properties": {
+        "system_scope_changed": {
+          "type": "boolean"
+        },
+        "information_values_changed": {
+          "type": "boolean"
+        },
+        "classification_profile_changed": {
+          "type": "boolean"
+        },
+        "privacy_profile_changed": {
+          "type": "boolean"
+        },
+        "actor_model_changed": {
+          "type": "boolean"
+        },
+        "authorization_model_changed": {
+          "type": "boolean"
+        },
+        "security_requirements_changed": {
+          "type": "boolean"
+        },
+        "implemented_measures_changed": {
+          "type": "boolean"
+        },
+        "control_test_results_changed": {
+          "type": "boolean"
+        },
+        "residual_risk_changed": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "recommended_package_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "minor_change_record",
+        "significant_change_package",
+        "reapproval_package",
+        "first_approval_package",
+        "temporary_use_permit_package"
+      ]
+    },
+    "owner_decision_required": {
+      "type": "boolean"
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "uri",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "document",
+              "schema",
+              "status_output",
+              "control_test",
+              "audit_event",
+              "hash",
+              "manifest",
+              "operator_record",
+              "other"
+            ]
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_type"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "event_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    }
+  }
+}

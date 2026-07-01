@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eagevo.local/schemas/approval/eagevo-temporary-use-permit.schema.json",
+  "title": "Eagevo Temporary Use Permit Package",
+  "description": "Conservative documentation package for temporary use. The package is not itself a permission.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "permit_package_id",
+    "system_scope",
+    "system_owner",
+    "protection_needs",
+    "known_deficiencies",
+    "compensating_measures",
+    "remediation_plan",
+    "temporary_use_recommendation",
+    "explicit_owner_risk_responsibility",
+    "validity_period",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "permit_package_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "system_scope": {
+      "type": "object"
+    },
+    "system_owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organization": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "protection_needs": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "known_deficiencies": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    },
+    "compensating_measures": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "remediation_plan": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "owner",
+        "milestones"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "temporary_use_recommendation": {
+      "type": "string",
+      "enum": [
+        "temporary_use_candidate",
+        "temporary_use_not_recommended",
+        "not_allowed_without_security_fix"
+      ]
+    },
+    "explicit_owner_risk_responsibility": {
+      "type": "boolean",
+      "const": true
+    },
+    "validity_period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review_triggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "uri",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "document",
+              "schema",
+              "status_output",
+              "control_test",
+              "audit_event",
+              "hash",
+              "manifest",
+              "operator_record",
+              "other"
+            ]
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_type"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "event_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    }
+  }
+}

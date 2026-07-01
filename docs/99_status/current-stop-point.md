@@ -2,17 +2,17 @@
 
 ## Step
 
-EAGEVO-MACOS-APPROVAL-CONCEPT-001A
+EAGEVO-MACOS-APPROVAL-PACKAGE-CONTRACT-001A
 
 ## Current state
 
-Approval concept documentation has been created but not yet committed until verification and operator review complete.
+Approval package contract artefacts have been created but not yet committed until verification and operator review complete.
 
 ## Start baseline
 
-- Start HEAD: `72747f73048f2944e3c5dd38a494336bab0993dd`
-- Start HEAD short: `72747f7`
+- Start HEAD: `eb7e350415d415470090231595d8ae40a197f1f8`
+- Start HEAD short: `eb7e350`
 
 ## Next required action
 
-Run verification for documentation artifacts and system non-change constraints.
+Run verification for schema validity, example validity, documentation artifacts and system non-change constraints.

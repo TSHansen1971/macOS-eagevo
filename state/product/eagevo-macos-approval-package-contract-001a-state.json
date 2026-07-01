@@ -1,0 +1,33 @@
+{
+  "step": "EAGEVO-MACOS-APPROVAL-PACKAGE-CONTRACT-001A",
+  "timestamp": "20260701-202155",
+  "type": "contract_model_documentation_step",
+  "product_code_changed": false,
+  "installed_system_files_changed": false,
+  "audit_append_performed": false,
+  "baseline_manifest_updated": false,
+  "control_plane_index_updated": false,
+  "launchdaemon_created": false,
+  "launchagent_created": false,
+  "enforcement_introduced": false,
+  "mdm_introduced": false,
+  "ai_runtime_introduced": false,
+  "model_download_performed": false,
+  "kildebrunn_runtime_integration": false,
+  "mimisbrunn_runtime_integration": false,
+  "approval_claim_made": false,
+  "start_head": "eb7e350415d415470090231595d8ae40a197f1f8",
+  "start_head_short": "eb7e350",
+  "artifacts": [
+    "schemas/approval/eagevo-approval-evidence-package.schema.json",
+    "schemas/approval/eagevo-approval-decision-record.schema.json",
+    "schemas/approval/eagevo-change-assessment.schema.json",
+    "schemas/approval/eagevo-temporary-use-permit.schema.json",
+    "examples/approval/first-approval-package.example.json",
+    "docs/01_architecture/macos-eagevo-approval-package-contract-001a.md",
+    "docs/99_status/macos-eagevo-approval-package-contract-001a.md",
+    "docs/99_status/current-stop-point.md",
+    "reports/product/eagevo-macos-approval-package-contract-001a-20260701-202155.md",
+    "state/product/eagevo-macos-approval-package-contract-001a-state.json"
+  ]
+}

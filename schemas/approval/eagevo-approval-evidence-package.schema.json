@@ -1,0 +1,503 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eagevo.local/schemas/approval/eagevo-approval-evidence-package.schema.json",
+  "title": "Eagevo Approval Evidence Package",
+  "description": "Machine-readable approval evidence package contract for macOS-eagevo. A package is decision support and audit evidence; it is not automatic approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_id",
+    "package_type",
+    "package_status",
+    "system_scope",
+    "system_owner",
+    "information_values",
+    "classification_profile",
+    "privacy_profile",
+    "actor_model",
+    "clearance_model",
+    "authorization_model",
+    "security_requirements",
+    "implemented_measures",
+    "control_test_results",
+    "risk_assessment",
+    "residual_risk",
+    "evidence_references",
+    "change_assessment",
+    "approval_decision",
+    "validity_period",
+    "limitations",
+    "audit_trail"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "package_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "package_type": {
+      "type": "string",
+      "enum": [
+        "first_approval_package",
+        "reapproval_package",
+        "significant_change_package",
+        "minor_change_record",
+        "temporary_use_permit_package",
+        "system_owner_risk_acceptance_record"
+      ]
+    },
+    "package_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "evidence_collection",
+        "ready_for_owner_review",
+        "owner_decision_required",
+        "decision_recorded",
+        "withdrawn",
+        "superseded"
+      ]
+    },
+    "system_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system_id",
+        "system_name",
+        "platform",
+        "scope_statement"
+      ],
+      "properties": {
+        "system_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "system_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "macOS",
+            "mixed",
+            "other"
+          ]
+        },
+        "scope_statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "included_components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "excluded_components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "system_owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organization": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "information_values": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "value_type",
+          "protection_need"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value_type": {
+            "type": "string",
+            "enum": [
+              "information_object",
+              "system_function",
+              "service",
+              "asset",
+              "other"
+            ]
+          },
+          "protection_need": {
+            "type": "string",
+            "enum": [
+              "none",
+              "low",
+              "moderate",
+              "high",
+              "critical",
+              "unknown"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "classification_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification_model",
+        "highest_classification",
+        "classification_basis",
+        "classification_does_not_grant_access"
+      ],
+      "properties": {
+        "classification_model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "highest_classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classification_basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classification_does_not_grant_access": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "privacy_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "personal_data_present",
+        "privacy_axis_assessed"
+      ],
+      "properties": {
+        "personal_data_present": {
+          "type": "boolean"
+        },
+        "privacy_axis_assessed": {
+          "type": "boolean"
+        },
+        "privacy_notes": {
+          "type": "string"
+        }
+      }
+    },
+    "actor_model": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "actor_id",
+          "actor_type",
+          "role"
+        ],
+        "properties": {
+          "actor_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor_type": {
+            "type": "string",
+            "enum": [
+              "person",
+              "service",
+              "system",
+              "organization"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "clearance_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clearance_required",
+        "clearance_grants_access"
+      ],
+      "properties": {
+        "clearance_required": {
+          "type": "boolean"
+        },
+        "clearance_grants_access": {
+          "type": "boolean",
+          "const": false
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "authorization_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_authorization",
+        "authorization_is_access_decision"
+      ],
+      "properties": {
+        "default_authorization": {
+          "type": "string",
+          "const": "deny"
+        },
+        "authorization_is_access_decision": {
+          "type": "boolean",
+          "const": true
+        },
+        "authorization_rules": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        }
+      }
+    },
+    "security_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "implemented_measures": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "control_test_results": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "risk_assessment": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "method",
+        "summary"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "residual_risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "summary",
+        "accepted_by_system_owner"
+      ],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": [
+            "none",
+            "low",
+            "moderate",
+            "high",
+            "critical",
+            "unknown"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accepted_by_system_owner": {
+          "type": "boolean"
+        }
+      }
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "uri",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "document",
+              "schema",
+              "status_output",
+              "control_test",
+              "audit_event",
+              "hash",
+              "manifest",
+              "operator_record",
+              "other"
+            ]
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "change_assessment": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "approval_decision": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "validity_period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review_triggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_type"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "event_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    }
+  }
+}

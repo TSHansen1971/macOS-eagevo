@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eagevo.local/schemas/approval/eagevo-approval-decision-record.schema.json",
+  "title": "Eagevo Approval Decision Record",
+  "description": "A decision record documents an explicit system-owner decision. The schema itself does not approve a system.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "decision_type",
+    "decision_status",
+    "system_owner",
+    "decision_maker",
+    "decision_timestamp",
+    "residual_risk_accepted",
+    "limitations",
+    "validity_period"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": [
+        "first_approval",
+        "reapproval",
+        "significant_change",
+        "temporary_use_permit",
+        "system_owner_risk_acceptance",
+        "non_approval"
+      ]
+    },
+    "decision_status": {
+      "type": "string",
+      "enum": [
+        "owner_decision_required",
+        "approved_by_system_owner",
+        "approved_with_limitations",
+        "not_approved",
+        "temporary_use_permitted",
+        "temporary_use_not_recommended",
+        "not_allowed_without_security_fix",
+        "withdrawn",
+        "expired"
+      ]
+    },
+    "system_owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organization": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "decision_maker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "role"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority_reference": {
+          "type": "string"
+        }
+      }
+    },
+    "decision_timestamp": {
+      "type": "string"
+    },
+    "residual_risk_accepted": {
+      "type": "boolean"
+    },
+    "residual_risk_summary": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "validity_period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review_triggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "uri",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "document",
+              "schema",
+              "status_output",
+              "control_test",
+              "audit_event",
+              "hash",
+              "manifest",
+              "operator_record",
+              "other"
+            ]
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_type"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "event_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    }
+  }
+}
