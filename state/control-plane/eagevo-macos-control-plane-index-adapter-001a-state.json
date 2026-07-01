@@ -1,0 +1,14 @@
+{
+  "step": "EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A",
+  "created_utc": "2026-07-01T12:40:57Z",
+  "start_head": "d7ca5e2",
+  "phase": "control-plane-index-adapter",
+  "mode": "read-only-index",
+  "component_added": "macos-adapter-discovery",
+  "expected_component_count": 6,
+  "automatic_collection_enabled": false,
+  "enforcement_enabled": false,
+  "launchd_enabled": false,
+  "ai_runtime_enabled": false,
+  "external_logging_enabled": false
+}

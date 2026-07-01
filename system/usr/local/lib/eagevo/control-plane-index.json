@@ -19,6 +19,7 @@
       "sha256": "32e9d9d6dcaf4b3ebbe3083d9cf77cc325521bcce58b47b9dd03e8d4052daea4"
     }
   },
+  "component_count": 6,
   "components": [
     {
       "contract": {
@@ -83,6 +84,38 @@
       },
       "mode": "read-only-index",
       "status": "green"
+    },
+    {
+      "cli_path": "/usr/local/bin/eagevo-macos-adapter",
+      "contract_path": "/usr/local/lib/eagevo/macos-adapter/adapter-contract.json",
+      "evidence_paths": [
+        "/usr/local/lib/eagevo/macos-adapter-discovery.json",
+        "/Library/Eagevo/evidence/macos-discovery.json"
+      ],
+      "id": "macos-adapter-discovery",
+      "indexed_by_step": "EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A",
+      "introduced_by_step": "EAGEVO-MACOS-ADAPTER-DISCOVERY-001A",
+      "kind": "read-only-macos-adapter",
+      "mode": "read-only-evidence",
+      "security_boundary": {
+        "agent_autonomy_enabled": false,
+        "agent_tool_execution_enabled": false,
+        "ai_runtime_enabled": false,
+        "automatic_collection_enabled": false,
+        "enforcement_enabled": false,
+        "external_logging_enabled": false,
+        "launch_agent_enabled": false,
+        "launch_daemon_enabled": false,
+        "launchd_enabled": false,
+        "mdm_enabled": false,
+        "read_only_adapter": true
+      },
+      "status": "green",
+      "title": "macOS Adapter Discovery",
+      "verification": [
+        "eagevo-macos-adapter verify",
+        "eagevo-macos-adapter status"
+      ]
     }
   ],
   "created_utc": "2026-06-30T22:05:58Z",
@@ -99,6 +132,7 @@
     "principle": "macOS utfører. Eagevo klassifiserer, vurderer, dokumenterer, auditerer og styrer.",
     "role": "Eagevo Control Plane for macOS"
   },
+  "repo_head_short": "d7ca5e2",
   "repository": {
     "head": "f4ddd1ca8af34b47e7ac58c40080b5238e411d5d",
     "head_short": "f4ddd1c",
@@ -119,5 +153,7 @@
     "launchd_enabled": false,
     "mdm_enabled": false
   },
-  "step": "EAGEVO-MACOS-CONTROL-PLANE-INDEX-001A"
+  "step": "EAGEVO-MACOS-CONTROL-PLANE-INDEX-001A",
+  "updated_by_step": "EAGEVO-MACOS-CONTROL-PLANE-INDEX-ADAPTER-001A",
+  "updated_utc": "2026-07-01T12:40:57Z"
 }

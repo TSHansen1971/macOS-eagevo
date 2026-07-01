@@ -8,22 +8,28 @@ from pathlib import Path
 
 USR_INDEX = Path("/usr/local/lib/eagevo/control-plane-index.json")
 LIB_INDEX = Path("/Library/Eagevo/control-plane-index.json")
+USR_MANIFEST = Path("/usr/local/lib/eagevo/baseline-manifest.json")
+LIB_MANIFEST = Path("/Library/Eagevo/baseline-manifest.json")
 
 REQUIRED_FILES = [
-    Path("/usr/local/lib/eagevo/foundation-contract.json"),
-    Path("/usr/local/lib/eagevo/audit/audit-core-contract.json"),
-    Path("/usr/local/lib/eagevo/status-core-contract.json"),
-    Path("/usr/local/lib/eagevo/baseline-manifest.json"),
-    Path("/Library/Eagevo/baseline-manifest.json"),
-    USR_INDEX,
-    LIB_INDEX,
+    "/usr/local/lib/eagevo/foundation-contract.json",
+    "/usr/local/lib/eagevo/audit/audit-core-contract.json",
+    "/usr/local/lib/eagevo/status-core-contract.json",
+    "/usr/local/lib/eagevo/baseline-manifest.json",
+    "/Library/Eagevo/baseline-manifest.json",
+    "/usr/local/lib/eagevo/control-plane-index.json",
+    "/Library/Eagevo/control-plane-index.json",
+    "/usr/local/lib/eagevo/macos-adapter/adapter-contract.json",
+    "/usr/local/lib/eagevo/macos-adapter-discovery.json",
+    "/Library/Eagevo/evidence/macos-discovery.json",
 ]
 
 REQUIRED_EXECUTABLES = [
-    Path("/usr/local/bin/eagevo-status"),
-    Path("/usr/local/bin/eagevo-baseline"),
-    Path("/usr/local/bin/eagevo-audit"),
-    Path("/usr/local/bin/eagevo-control-plane"),
+    "/usr/local/bin/eagevo-status",
+    "/usr/local/bin/eagevo-baseline",
+    "/usr/local/bin/eagevo-audit",
+    "/usr/local/bin/eagevo-control-plane",
+    "/usr/local/bin/eagevo-macos-adapter",
 ]
 
 FORBIDDEN_GLOBS = [
@@ -32,129 +38,123 @@ FORBIDDEN_GLOBS = [
     str(Path.home() / "Library/LaunchAgents/*eagevo*"),
 ]
 
-def sha256(path):
+def sha256_file(path):
     h = hashlib.sha256()
-    with path.open("rb") as f:
+    with Path(path).open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
 
+def run(argv):
+    return subprocess.run(argv, text=True, capture_output=True, check=False)
+
+def glob_matches(pattern):
+    if pattern.startswith("/"):
+        return [str(p) for p in Path("/").glob(pattern.lstrip("/"))]
+    return [str(p) for p in Path.home().glob("Library/LaunchAgents/*eagevo*")]
+
 def load_index():
-    return json.loads(USR_INDEX.read_text(encoding="utf-8"))
-
-def verify(print_output=True):
-    fail = False
-
-    if print_output:
-        print("== eagevo-control-plane ==")
-        print("mode: read-only-index")
-        print("enforcement: disabled")
-        print("launchd: disabled")
-        print()
-
-    for path in REQUIRED_FILES:
-        if path.exists():
-            if print_output:
-                print(f"OK: exists: {path}")
-        else:
-            fail = True
-            if print_output:
-                print(f"FAIL: missing: {path}")
-
-    for path in REQUIRED_EXECUTABLES:
-        if path.exists() and path.is_file() and path.stat().st_mode & 0o111:
-            if print_output:
-                print(f"OK: executable: {path}")
-        else:
-            fail = True
-            if print_output:
-                print(f"FAIL: missing_or_not_executable: {path}")
-
-    if USR_INDEX.exists() and LIB_INDEX.exists():
-        usr_sha = sha256(USR_INDEX)
-        lib_sha = sha256(LIB_INDEX)
-        if usr_sha == lib_sha:
-            if print_output:
-                print(f"OK: control_plane_index_sha256: {usr_sha}")
-        else:
-            fail = True
-            if print_output:
-                print(f"FAIL: control_plane_index_sha_mismatch: {usr_sha} != {lib_sha}")
-
-    baseline_usr = Path("/usr/local/lib/eagevo/baseline-manifest.json")
-    baseline_lib = Path("/Library/Eagevo/baseline-manifest.json")
-    if baseline_usr.exists() and baseline_lib.exists():
-        baseline_usr_sha = sha256(baseline_usr)
-        baseline_lib_sha = sha256(baseline_lib)
-        if baseline_usr_sha == baseline_lib_sha:
-            if print_output:
-                print(f"OK: baseline_manifest_sha256: {baseline_usr_sha}")
-        else:
-            fail = True
-            if print_output:
-                print(f"FAIL: baseline_manifest_sha_mismatch: {baseline_usr_sha} != {baseline_lib_sha}")
-
     try:
-        audit = subprocess.run(["/usr/local/bin/eagevo-audit", "verify"], text=True, capture_output=True, check=False)
-        if print_output:
-            print(audit.stdout.strip())
-        if audit.returncode == 0:
-            if print_output:
-                print("OK: audit_verify_green")
-        else:
-            fail = True
-            if print_output:
-                print("FAIL: audit_verify_failed")
-                if audit.stderr:
-                    print(audit.stderr.strip())
-    except Exception as exc:
-        fail = True
-        if print_output:
-            print(f"FAIL: audit_verify_exception: {exc}")
-
-    for glob in FORBIDDEN_GLOBS:
-        matches = list(Path("/").glob(glob.lstrip("/"))) if glob.startswith("/") else list(Path.home().glob("Library/LaunchAgents/*eagevo*"))
-        if matches:
-            fail = True
-            if print_output:
-                print(f"FAIL: unexpected_launchd_match: {glob}")
-        else:
-            if print_output:
-                print(f"OK: absent: {glob}")
-
-    if print_output:
-        print()
-        print("overall: GREEN" if not fail else "overall: RED")
-
-    return 1 if fail else 0
+        return json.loads(USR_INDEX.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
 
 def status(_args):
-    rc = verify(print_output=True)
-    if USR_INDEX.exists():
-        data = load_index()
-        print()
-        print(f"components: {len(data.get('components', []))}")
-        print(f"repo_head_short: {data.get('repository', {}).get('head_short')}")
-    return rc
+    fail = False
 
-def show_index(_args):
-    print(USR_INDEX.read_text(encoding="utf-8"), end="")
-    return 0
+    print("== eagevo-control-plane ==")
+    print("mode: read-only-index")
+    print("enforcement: disabled")
+    print("launchd: disabled")
+    print()
+
+    for path in REQUIRED_FILES:
+        p = Path(path)
+        if p.exists():
+            print(f"OK: exists: {path}")
+        else:
+            print(f"FAIL: missing: {path}")
+            fail = True
+
+    for path in REQUIRED_EXECUTABLES:
+        p = Path(path)
+        if p.exists() and p.is_file() and p.stat().st_mode & 0o111:
+            print(f"OK: executable: {path}")
+        else:
+            print(f"FAIL: not_executable: {path}")
+            fail = True
+
+    if USR_INDEX.exists() and LIB_INDEX.exists():
+        usr_sha = sha256_file(USR_INDEX)
+        lib_sha = sha256_file(LIB_INDEX)
+        if usr_sha == lib_sha:
+            print(f"OK: control_plane_index_sha256: {usr_sha}")
+        else:
+            print(f"FAIL: control_plane_index_sha_mismatch: {usr_sha} != {lib_sha}")
+            fail = True
+
+    if USR_MANIFEST.exists() and LIB_MANIFEST.exists():
+        usr_sha = sha256_file(USR_MANIFEST)
+        lib_sha = sha256_file(LIB_MANIFEST)
+        if usr_sha == lib_sha:
+            print(f"OK: baseline_manifest_sha256: {usr_sha}")
+        else:
+            print(f"FAIL: baseline_manifest_sha_mismatch: {usr_sha} != {lib_sha}")
+            fail = True
+
+    if Path("/usr/local/lib/eagevo/macos-adapter-discovery.json").exists() and Path("/Library/Eagevo/evidence/macos-discovery.json").exists():
+        usr_sha = sha256_file("/usr/local/lib/eagevo/macos-adapter-discovery.json")
+        lib_sha = sha256_file("/Library/Eagevo/evidence/macos-discovery.json")
+        if usr_sha == lib_sha:
+            print(f"OK: macos_adapter_evidence_sha256: {usr_sha}")
+        else:
+            print(f"FAIL: macos_adapter_evidence_sha_mismatch: {usr_sha} != {lib_sha}")
+            fail = True
+
+    audit = run(["/usr/local/bin/eagevo-audit", "verify"])
+    print(audit.stdout.strip())
+    if audit.returncode == 0 and "audit_verify: GREEN" in audit.stdout:
+        print("OK: audit_verify_green")
+    else:
+        print("FAIL: audit_verify_not_green")
+        fail = True
+
+    adapter = run(["/usr/local/bin/eagevo-macos-adapter", "verify"])
+    if adapter.returncode == 0 and "overall: GREEN" in adapter.stdout:
+        print("OK: macos_adapter_verify_green")
+    else:
+        print("FAIL: macos_adapter_verify_not_green")
+        print(adapter.stdout.strip())
+        print(adapter.stderr.strip())
+        fail = True
+
+    for pattern in FORBIDDEN_GLOBS:
+        matches = glob_matches(pattern)
+        if matches:
+            print(f"FAIL: unexpected_launchd_match: {pattern}: {matches}")
+            fail = True
+        else:
+            print(f"OK: absent: {pattern}")
+
+    index = load_index()
+    components = index.get("components", [])
+    print()
+    print("overall: GREEN" if not fail else "overall: RED")
+    print()
+    print(f"components: {len(components)}")
+    print(f"repo_head_short: {index.get('repo_head_short')}")
+    print(f"updated_by_step: {index.get('updated_by_step')}")
+
+    return 1 if fail else 0
 
 def main():
     parser = argparse.ArgumentParser(prog="eagevo-control-plane")
     sub = parser.add_subparsers(dest="command")
     sub.add_parser("status")
-    sub.add_parser("verify")
-    sub.add_parser("index")
     args = parser.parse_args()
 
     if args.command in (None, "status"):
         return status(args)
-    if args.command == "verify":
-        return verify(print_output=True)
-    if args.command == "index":
-        return show_index(args)
 
     parser.print_help()
     return 2
