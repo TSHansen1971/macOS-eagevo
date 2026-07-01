@@ -1,7 +1,7 @@
 {
   "step": "EAGEVO-MACOS-APPROVAL-PACKAGE-VALIDATOR-001A",
   "timestamp": "20260701-233402",
-  "status": "GREEN_BEFORE_COMMIT_PUSH",
+  "status": "GREEN_PUSHED_STATUS_FINALIZED",
   "start_head_short": "e099508",
   "validator": "tools/approval/validate_approval_package.py",
   "validated_example": "examples/approval/first-approval-package.example.json",
@@ -26,5 +26,11 @@
     "docs/99_status/current-stop-point.md",
     "reports/product/eagevo-macos-approval-package-validator-001a-20260701-233402.md",
     "state/product/eagevo-macos-approval-package-validator-001a-state.json"
-  ]
+  ],
+  "pushed_to_origin_main": true,
+  "implementation_head": "4405358f70bdb3686220fdf2c8fa8786c13f1751",
+  "implementation_head_short": "4405358",
+  "implementation_pushed_to_origin_main": true,
+  "status_finalized_timestamp": "20260701-235957",
+  "post_push_verification_required": true
 }
