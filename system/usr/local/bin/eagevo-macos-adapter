@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+import argparse
+import datetime
+import getpass
+import hashlib
+import json
+import os
+import platform
+import socket
+import subprocess
+import sys
+from pathlib import Path
+
+CONTRACT = Path("/usr/local/lib/eagevo/macos-adapter/adapter-contract.json")
+USR_EVIDENCE = Path("/usr/local/lib/eagevo/macos-adapter-discovery.json")
+LIB_EVIDENCE = Path("/Library/Eagevo/evidence/macos-discovery.json")
+
+FORBIDDEN_GLOBS = [
+    "/Library/LaunchDaemons/*eagevo*",
+    "/Library/LaunchAgents/*eagevo*",
+    str(Path.home() / "Library/LaunchAgents/*eagevo*"),
+]
+
+def utc_now():
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+def run_command(argv, timeout=10):
+    try:
+        proc = subprocess.run(argv, text=True, capture_output=True, timeout=timeout, check=False)
+        return {
+            "argv": argv,
+            "returncode": proc.returncode,
+            "stdout": proc.stdout.strip(),
+            "stderr": proc.stderr.strip(),
+            "timeout": False
+        }
+    except subprocess.TimeoutExpired as exc:
+        return {
+            "argv": argv,
+            "returncode": None,
+            "stdout": (exc.stdout or "").strip() if isinstance(exc.stdout, str) else "",
+            "stderr": (exc.stderr or "").strip() if isinstance(exc.stderr, str) else "",
+            "timeout": True
+        }
+    except FileNotFoundError:
+        return {
+            "argv": argv,
+            "returncode": None,
+            "stdout": "",
+            "stderr": "command_not_found",
+            "timeout": False
+        }
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def glob_matches(pattern):
+    if pattern.startswith("/"):
+        return [str(p) for p in Path("/").glob(pattern.lstrip("/"))]
+    return [str(p) for p in Path.home().glob("Library/LaunchAgents/*eagevo*")]
+
+def discover_object():
+    commands = {
+        "sw_vers": run_command(["/usr/bin/sw_vers"]),
+        "uname": run_command(["/usr/bin/uname", "-a"]),
+        "hostname": run_command(["/bin/hostname"]),
+        "id": run_command(["/usr/bin/id"]),
+        "csrutil_status": run_command(["/usr/bin/csrutil", "status"]),
+        "spctl_status": run_command(["/usr/sbin/spctl", "--status"]),
+        "fdesetup_status": run_command(["/usr/bin/fdesetup", "status"]),
+        "launchctl_list_count": run_command(["/bin/sh", "-c", "/bin/launchctl list | /usr/bin/wc -l | /usr/bin/tr -d ' '"]),
+    }
+
+    eagevo_launchd = {}
+    for pattern in FORBIDDEN_GLOBS:
+        eagevo_launchd[pattern] = glob_matches(pattern)
+
+    evidence = {
+        "schema_version": "eagevo.macos.adapter.discovery.v1",
+        "created_utc": utc_now(),
+        "mode": "read-only-evidence",
+        "platform": {
+            "name": "macOS",
+            "machine": platform.machine(),
+            "node": platform.node(),
+            "host": socket.gethostname(),
+            "user": getpass.getuser()
+        },
+        "sources": commands,
+        "derived": {
+            "sip_status_text": commands["csrutil_status"]["stdout"],
+            "gatekeeper_status_text": commands["spctl_status"]["stdout"],
+            "filevault_status_text": commands["fdesetup_status"]["stdout"],
+            "launchctl_list_count_text": commands["launchctl_list_count"]["stdout"],
+            "eagevo_launchd_matches": eagevo_launchd,
+            "eagevo_launchd_match_count": sum(len(v) for v in eagevo_launchd.values())
+        },
+        "security_boundary": {
+            "read_only_adapter": True,
+            "automatic_collection_enabled": False,
+            "enforcement_enabled": False,
+            "launchd_enabled": False,
+            "launch_daemon_enabled": False,
+            "launch_agent_enabled": False,
+            "ai_runtime_enabled": False,
+            "agent_autonomy_enabled": False,
+            "agent_tool_execution_enabled": False,
+            "external_logging_enabled": False,
+            "mdm_enabled": False
+        }
+    }
+    return evidence
+
+def write_evidence():
+    evidence = discover_object()
+    USR_EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
+    LIB_EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
+
+    data = json.dumps(evidence, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    for path in [USR_EVIDENCE, LIB_EVIDENCE]:
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(data, encoding="utf-8")
+        os.replace(tmp, path)
+
+    print(f"wrote: {USR_EVIDENCE}")
+    print(f"wrote: {LIB_EVIDENCE}")
+    print(f"sha256: {sha256_file(USR_EVIDENCE)}")
+    return 0
+
+def verify(print_output=True):
+    fail = False
+
+    if print_output:
+        print("== eagevo-macos-adapter ==")
+        print("mode: read-only-evidence")
+        print("enforcement: disabled")
+        print("launchd: disabled")
+        print()
+
+    for path in [CONTRACT, USR_EVIDENCE, LIB_EVIDENCE]:
+        if path.exists():
+            if print_output:
+                print(f"OK: exists: {path}")
+        else:
+            fail = True
+            if print_output:
+                print(f"FAIL: missing: {path}")
+
+    if USR_EVIDENCE.exists() and LIB_EVIDENCE.exists():
+        usr_sha = sha256_file(USR_EVIDENCE)
+        lib_sha = sha256_file(LIB_EVIDENCE)
+        if usr_sha == lib_sha:
+            if print_output:
+                print(f"OK: evidence_sha256: {usr_sha}")
+        else:
+            fail = True
+            if print_output:
+                print(f"FAIL: evidence_sha_mismatch: {usr_sha} != {lib_sha}")
+
+        try:
+            data = json.loads(USR_EVIDENCE.read_text(encoding="utf-8"))
+            if data.get("derived", {}).get("eagevo_launchd_match_count") == 0:
+                if print_output:
+                    print("OK: eagevo_launchd_match_count: 0")
+            else:
+                fail = True
+                if print_output:
+                    print(f"FAIL: eagevo_launchd_match_count: {data.get('derived', {}).get('eagevo_launchd_match_count')}")
+        except Exception as exc:
+            fail = True
+            if print_output:
+                print(f"FAIL: invalid_evidence_json: {exc}")
+
+    if print_output:
+        print()
+        print("overall: GREEN" if not fail else "overall: RED")
+
+    return 1 if fail else 0
+
+def status(_args):
+    rc = verify(print_output=True)
+    if USR_EVIDENCE.exists():
+        data = json.loads(USR_EVIDENCE.read_text(encoding="utf-8"))
+        print()
+        print(f"sip: {data.get('derived', {}).get('sip_status_text')}")
+        print(f"gatekeeper: {data.get('derived', {}).get('gatekeeper_status_text')}")
+        print(f"filevault: {data.get('derived', {}).get('filevault_status_text')}")
+    return rc
+
+def show_evidence(_args):
+    print(USR_EVIDENCE.read_text(encoding="utf-8"), end="")
+    return 0
+
+def main():
+    parser = argparse.ArgumentParser(prog="eagevo-macos-adapter")
+    sub = parser.add_subparsers(dest="command")
+
+    discover_parser = sub.add_parser("discover")
+    discover_parser.add_argument("--write", action="store_true")
+
+    sub.add_parser("status")
+    sub.add_parser("verify")
+    sub.add_parser("evidence")
+
+    args = parser.parse_args()
+
+    if args.command == "discover":
+        if args.write:
+            return write_evidence()
+        print(json.dumps(discover_object(), ensure_ascii=False, sort_keys=True, indent=2))
+        return 0
+
+    if args.command in (None, "status"):
+        return status(args)
+
+    if args.command == "verify":
+        return verify(print_output=True)
+
+    if args.command == "evidence":
+        return show_evidence(args)
+
+    parser.print_help()
+    return 2
+
+if __name__ == "__main__":
+    sys.exit(main())
